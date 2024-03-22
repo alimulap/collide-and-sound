@@ -36,9 +36,9 @@ impl Ball<'_> {
     pub fn new_with_size<P: Into<Vector2f>>(pos: P, size: BallSize) -> Self {
         let mut shape = CircleShape::default();
         let radius = match size {
-            BallSize::Small => 15.0,
-            BallSize::Medium => 100.0,
-            BallSize::Large => 195.0,
+            BallSize::Small => 30.0,
+            BallSize::Medium => 200.0,
+            BallSize::Large => 300.0,
         };
         shape.set_position(pos);
         shape.set_radius(radius);
@@ -97,7 +97,7 @@ impl PhysicsObject for Ball<'_> {
             .build();
         let collider = ColliderBuilder::ball(self.shape.radius() + self.shape.outline_thickness())
             .active_events(ActiveEvents::COLLISION_EVENTS)
-            .restitution(1.02)
+            .restitution(1.05)
             .build();
         let rbhandle = physics.insert_body(rb, collider);
         self.rb_handle = Some(rbhandle);

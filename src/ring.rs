@@ -42,9 +42,9 @@ impl<'s> Ring<'s> {
     pub fn new_with_size<P: Into<Vector2f>>(pos: P, size: RingSize) -> Self {
         let mut shape = CircleShape::default();
         let radius = match size {
-            RingSize::Small => 25.0,
-            RingSize::Medium => 100.0,
-            RingSize::Large => 175.0,
+            RingSize::Small => 30.0,
+            RingSize::Medium => 200.0,
+            RingSize::Large => 300.0,
         };
         shape.set_position(pos);
         shape.set_radius(radius);
@@ -117,7 +117,7 @@ impl PhysicsObject for Ring<'_> {
         };
         let collider = ColliderBuilder::trimesh(vertices, indices)
             .active_events(ActiveEvents::COLLISION_EVENTS)
-            .restitution(1.02)
+            .restitution(1.05)
             .build();
         physics
             .collider_set

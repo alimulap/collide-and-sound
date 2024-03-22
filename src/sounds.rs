@@ -18,9 +18,10 @@ impl<'s> Sounds<'s> {
         }
     }
 
-    pub fn play(&mut self, sound_buffer: &'s SfBox<SoundBuffer>) {
+    pub fn play(&mut self, sound_buffer: &'s SfBox<SoundBuffer>, pitch: f32) {
         let mut sound = Sound::with_buffer(sound_buffer);
-        sound.set_volume(5.5);
+        sound.set_volume(1.5);
+        sound.set_pitch(pitch);
         sound.play();
         self.playing.push(sound);
     }

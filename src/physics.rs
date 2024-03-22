@@ -90,6 +90,14 @@ impl Physics {
         }
         events
     }
+
+    pub fn get_contact_force_events(&mut self) -> Vec<ContactForceEvent> {
+        let mut events = Vec::new();
+        while let Ok(event) = self.event_receiver.1.try_recv() {
+            events.push(event);
+        }
+        events
+    }
 }
 
 pub trait PhysicsObject {

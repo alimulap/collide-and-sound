@@ -24,7 +24,7 @@ pub struct App<'s> {
 impl<'s> App<'s> {
     pub fn new(title: &str) -> Self {
         let mut window = RenderWindow::new(
-            (600, 400),
+            (1280, 720),
             title,
             sfml::window::Style::CLOSE,
             &sfml::window::ContextSettings {
@@ -36,15 +36,15 @@ impl<'s> App<'s> {
         let mut physics = Physics::new();
 
         let mut balls = vec![
-            Ball::new_with_size((270.0, 200.0), BallSize::Small),
-            Ball::new_with_size((330.0, 200.0), BallSize::Small),
+            Ball::new_with_size((580.0, 180.0), BallSize::Small),
+            Ball::new_with_size((700.0, 180.0), BallSize::Small),
         ];
 
         balls.iter_mut().enumerate().for_each(|(_i, ball)| {
             ball.insert_into_physics(RigidBodyType::Dynamic, &mut physics);
         });
 
-        let mut rings = vec![Ring::new_with_size((300.0, 200.0), RingSize::Large)];
+        let mut rings = vec![Ring::new_with_size((640.0, 360.0), RingSize::Large)];
 
         rings.iter_mut().for_each(|ring| {
             ring.insert_into_physics(RigidBodyType::Fixed, &mut physics);
@@ -96,8 +96,35 @@ impl<'s> App<'s> {
             .iter()
             .for_each(|event| {
                 if event.started() {
-                    self.sounds.play(self.soundlist.get(SoundType::Bounce));
+                    let rb1_handle = self
+                        .physics
+                        .collider_set
+                        .get(event.collider1())
+                        .unwrap()
+                        .parent()
+                        .unwrap();
+                    let rb1 = self.physics.rigidbody_set.get(rb1_handle).unwrap();
+                    let rb2_handle = self
+                        .physics
+                        .collider_set
+                        .get(event.collider2())
+                        .unwrap()
+                        .parent()
+                        .unwrap();
+                    let rb2 = self.physics.rigidbody_set.get(rb2_handle).unwrap();
+                    let combined_velocity_magnitude = rb1.linvel().norm() + rb2.linvel().norm();
+                    //println!(
+                    //    "Combined velocity magnitude {:?}",
+                    //    combined_velocity_magnitude
+                    //);
+                    self.sounds.play(self.soundlist.get(SoundType::Bounce), pitch(combined_velocity_magnitude));
                 }
+            });
+        self.physics
+            .get_contact_force_events()
+            .iter()
+            .for_each(|event| {
+                println!("{:?}", event);
             });
         self.sounds.update();
     }
@@ -111,5 +138,16 @@ impl<'s> App<'s> {
         for ring in &mut self.rings {
             ring.draw(&mut self.window, &states);
         }
+    }
+}
+
+fn pitch(magnitude: f32) -> f32 {
+    let magnitude = magnitude as u32;
+    match magnitude {
+        0..=200=> magnitude as f32 / 200.0,
+        201..=1000 => 1.0 + (magnitude - 200) as f32 / 800.0,
+        1001..=2000 => 2.0 + (magnitude - 1000) as f32 / 1000.0,
+        2001..=4000 => 3.0 + (magnitude - 2000) as f32 / 2000.0,
+        _ => 4.0 + (magnitude - 4000) as f32 / 4000.0,
     }
 }
