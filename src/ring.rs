@@ -2,6 +2,7 @@
 
 use std::f32::consts::PI;
 
+use rand::Rng;
 use rapier2d::{
     dynamics::{RigidBodyBuilder, RigidBodyHandle, RigidBodyType},
     geometry::ColliderBuilder,
@@ -9,7 +10,7 @@ use rapier2d::{
     pipeline::ActiveEvents,
 };
 use sfml::{
-    graphics::{CircleShape, Drawable, Shape, Transformable},
+    graphics::{CircleShape, Color, Drawable, Shape, Transformable},
     system::Vector2f,
 };
 
@@ -57,6 +58,27 @@ impl<'s> Ring<'s> {
             shape,
             rb_handle: None,
         }
+    }
+
+    pub fn is_obj_with_handle(&self, handle: RigidBodyHandle) -> bool {
+        if let Some(rb_handle) = self.rb_handle {
+            rb_handle == handle
+        } else {
+            false
+        }
+    }
+
+    pub fn set_outline_color(&mut self, color: Color) {
+        self.shape.set_outline_color(color);
+    }
+
+    pub fn rand_outline_color(&mut self) {
+        let mut rng = rand::thread_rng();
+        self.shape.set_outline_color(Color::rgb(
+            rng.gen_range(10..255),
+            rng.gen_range(10..255),
+            rng.gen_range(10..255),
+        ));
     }
 }
 

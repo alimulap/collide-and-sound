@@ -1,8 +1,9 @@
 #![allow(dead_code)]
 
+use rand::Rng;
 use rapier2d::prelude::*;
 use sfml::{
-    graphics::{CircleShape, Drawable, RenderStates, RenderTarget, Shape, Transformable},
+    graphics::{CircleShape, Color, Drawable, RenderStates, RenderTarget, Shape, Transformable},
     system::Vector2f,
 };
 
@@ -80,6 +81,27 @@ impl Ball<'_> {
                 }
             }
         }
+    }
+
+    pub fn is_obj_with_handle(&self, handle: RigidBodyHandle) -> bool {
+        if let Some(rbhandle) = self.rb_handle {
+            rbhandle == handle
+        } else {
+            false
+        }
+    }
+
+    pub fn set_outline_color(&mut self, color: Color) {
+        self.shape.set_outline_color(color);
+    }
+
+    pub fn rand_outline_color(&mut self) {
+        let mut rng = rand::thread_rng();
+        self.shape.set_outline_color(Color::rgb(
+            rng.gen_range(10..255),
+            rng.gen_range(10..255),
+            rng.gen_range(10..255),
+        ));
     }
 }
 

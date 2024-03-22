@@ -9,5 +9,5 @@ edition = "2021"
 crossbeam = "0.8.4"
 rand = "0.8.5"
 rapier2d = "0.18.0"
-rodio = { version = "0.17.3", default-features = false, features = ["wav"] }
 sfml = "0.21.0"
+# rodio = { version = "0.17.3", default-features = false, features = ["wav"] }
