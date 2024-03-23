@@ -24,7 +24,7 @@ pub struct App<'s> {
 impl<'s> App<'s> {
     pub fn new(title: &str) -> Self {
         let mut window = RenderWindow::new(
-            (1280, 720),
+            (640, 360),
             title,
             sfml::window::Style::CLOSE,
             &sfml::window::ContextSettings {
@@ -36,15 +36,15 @@ impl<'s> App<'s> {
         let mut physics = Physics::new();
 
         let mut balls = vec![
-            Ball::new_with_size((580.0, 180.0), BallSize::Small),
-            Ball::new_with_size((700.0, 180.0), BallSize::Small),
+            Ball::new_with_size((290.0, 180.0), BallSize::Small),
+            Ball::new_with_size((350.0, 180.0), BallSize::Small),
         ];
 
         balls.iter_mut().enumerate().for_each(|(_i, ball)| {
             ball.insert_into_physics(RigidBodyType::Dynamic, &mut physics);
         });
 
-        let mut rings = vec![Ring::new_with_size((640.0, 360.0), RingSize::Large)];
+        let mut rings = vec![Ring::new_with_size((320.0, 180.0), RingSize::Large)];
 
         rings.iter_mut().for_each(|ring| {
             ring.insert_into_physics(RigidBodyType::Fixed, &mut physics);

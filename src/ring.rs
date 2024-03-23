@@ -43,9 +43,9 @@ impl<'s> Ring<'s> {
     pub fn new_with_size<P: Into<Vector2f>>(pos: P, size: RingSize) -> Self {
         let mut shape = CircleShape::default();
         let radius = match size {
-            RingSize::Small => 30.0,
-            RingSize::Medium => 200.0,
-            RingSize::Large => 300.0,
+            RingSize::Small => 15.0,
+            RingSize::Medium => 100.0,
+            RingSize::Large => 150.0,
         };
         shape.set_position(pos);
         shape.set_radius(radius);

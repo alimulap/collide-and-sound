@@ -37,9 +37,9 @@ impl Ball<'_> {
     pub fn new_with_size<P: Into<Vector2f>>(pos: P, size: BallSize) -> Self {
         let mut shape = CircleShape::default();
         let radius = match size {
-            BallSize::Small => 30.0,
-            BallSize::Medium => 200.0,
-            BallSize::Large => 300.0,
+            BallSize::Small => 15.0,
+            BallSize::Medium => 100.0,
+            BallSize::Large => 150.0,
         };
         shape.set_position(pos);
         shape.set_radius(radius);
