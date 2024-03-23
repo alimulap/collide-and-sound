@@ -103,6 +103,22 @@ impl Ball<'_> {
             rng.gen_range(10..255),
         ));
     }
+
+    pub fn set_radius(&mut self, radius: f32) {
+        self.shape.set_radius(radius);
+        self.shape.set_origin((radius, radius));
+    }
+
+    pub fn radius(&self) -> f32 {
+        self.shape.radius()
+    }
+
+    pub fn create_collider(&mut self) -> Collider {
+        ColliderBuilder::ball(self.shape.radius() + self.shape.outline_thickness())
+            .active_events(ActiveEvents::COLLISION_EVENTS)
+            .restitution(1.035)
+            .build()
+    }
 }
 
 impl util::Drawable for Ball<'_> {
@@ -117,10 +133,7 @@ impl PhysicsObject for Ball<'_> {
             .ccd_enabled(true)
             .translation(self.shape.position().to_na_mat2x1())
             .build();
-        let collider = ColliderBuilder::ball(self.shape.radius() + self.shape.outline_thickness())
-            .active_events(ActiveEvents::COLLISION_EVENTS)
-            .restitution(1.05)
-            .build();
+        let collider = self.create_collider();
         let rbhandle = physics.insert_body(rb, collider);
         self.rb_handle = Some(rbhandle);
     }

@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 use rand::Rng;
 use rapier2d::{
     dynamics::{RigidBodyBuilder, RigidBodyHandle, RigidBodyType},
-    geometry::ColliderBuilder,
+    geometry::{Collider, ColliderBuilder},
     na::Point2,
     pipeline::ActiveEvents,
 };
@@ -80,26 +80,17 @@ impl<'s> Ring<'s> {
             rng.gen_range(10..255),
         ));
     }
-}
 
-impl util::Drawable for Ring<'_> {
-    fn draw(
-        &mut self,
-        target: &mut dyn sfml::graphics::RenderTarget,
-        states: &sfml::graphics::RenderStates,
-    ) {
-        self.shape.draw(target, states);
+    pub fn set_radius(&mut self, radius: f32) {
+        self.shape.set_radius(radius);
+        self.shape.set_origin((radius, radius));
     }
-}
 
-impl PhysicsObject for Ring<'_> {
-    fn insert_into_physics(&mut self, rbtype: RigidBodyType, physics: &mut Physics) {
-        let rb = RigidBodyBuilder::new(rbtype)
-            .translation(self.shape.position().to_na_mat2x1())
-            .rotation(PI / 2.0)
-            .ccd_enabled(true)
-            .build();
-        let rb_handle = physics.rigidbody_set.insert(rb);
+    pub fn radius(&self) -> f32 {
+        self.shape.radius()
+    }
+
+    pub fn create_collider(&self) -> Collider {
         let (radius, thickness, point_count) = {
             (
                 self.shape.radius(),
@@ -137,13 +128,33 @@ impl PhysicsObject for Ring<'_> {
 
             (vertices, indices)
         };
-        let collider = ColliderBuilder::trimesh(vertices, indices)
+
+        ColliderBuilder::trimesh(vertices, indices)
             .active_events(ActiveEvents::COLLISION_EVENTS)
-            .restitution(1.05)
+            .restitution(1.035)
+            .build()
+    }
+}
+
+impl util::Drawable for Ring<'_> {
+    fn draw(
+        &mut self,
+        target: &mut dyn sfml::graphics::RenderTarget,
+        states: &sfml::graphics::RenderStates,
+    ) {
+        self.shape.draw(target, states);
+    }
+}
+
+impl PhysicsObject for Ring<'_> {
+    fn insert_into_physics(&mut self, rbtype: RigidBodyType, physics: &mut Physics) {
+        let rb = RigidBodyBuilder::new(rbtype)
+            .translation(self.shape.position().to_na_mat2x1())
+            .rotation(PI / 2.0)
+            .ccd_enabled(true)
             .build();
-        physics
-            .collider_set
-            .insert_with_parent(collider, rb_handle, &mut physics.rigidbody_set);
+        let collider = self.create_collider();
+        let rb_handle = physics.insert_body(rb, collider);
         self.rb_handle = Some(rb_handle);
     }
 }

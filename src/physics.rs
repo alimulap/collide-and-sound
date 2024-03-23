@@ -17,6 +17,7 @@ pub struct Physics {
     //physics_hooks: (),
     event_handler: ChannelEventCollector,
     event_receiver: (Receiver<CollisionEvent>, Receiver<ContactForceEvent>),
+    removed_colliders: Vec<ColliderHandle>,
 }
 
 impl Physics {
@@ -38,6 +39,7 @@ impl Physics {
         let (contact_force_send, contact_force_recv) = crossbeam::channel::unbounded();
         let event_handler = ChannelEventCollector::new(collision_send, contact_force_send);
         let event_receiver = (collision_recv, contact_force_recv);
+        let removed_colliders = Vec::new();
 
         Self {
             gravity,
@@ -55,6 +57,7 @@ impl Physics {
             //physics_hooks,
             event_handler,
             event_receiver,
+            removed_colliders,
         }
     }
 
@@ -78,7 +81,7 @@ impl Physics {
 
     pub fn insert_body(&mut self, rb: RigidBody, collider: Collider) -> RigidBodyHandle {
         let rbhandle = self.rigidbody_set.insert(rb);
-        self.collider_set
+        let _ = self.collider_set
             .insert_with_parent(collider, rbhandle, &mut self.rigidbody_set);
         rbhandle
     }
@@ -98,6 +101,31 @@ impl Physics {
             events.push(event);
         }
         events
+    }
+
+    pub fn replace_collider(
+        &mut self,
+        rbhandle: RigidBodyHandle,
+        old_collider_handle: ColliderHandle,
+        new_collider: Collider,
+    ) {
+        self.collider_set.remove(
+            old_collider_handle,
+            &mut self.island_manager,
+            &mut self.rigidbody_set,
+            true,
+        );
+        self.removed_colliders.push(old_collider_handle);
+        let _ = self.collider_set
+            .insert_with_parent(new_collider, rbhandle, &mut self.rigidbody_set);
+    }
+
+    pub fn is_collider_removed(&self, handle: ColliderHandle) -> bool {
+        self.removed_colliders.contains(&handle)
+    }
+
+    pub fn cleanup(&mut self) {
+        self.removed_colliders.clear();
     }
 }
 
